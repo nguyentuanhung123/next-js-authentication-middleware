@@ -86,3 +86,50 @@ export function middleware(request) {
 ```
 
 - Middleware này sẽ được chạy trước khi bất kỳ yêu cầu nào được chuyển đến handler tương ứng của chúng, cho phép bạn thực hiện các kiểm tra và xử lý cần thiết.
+
+### Setup project
+- npx shadcn-ui@latest init
+- npm i bcryptjs jsonwebtoken mongoose
+
+### Setup database
+- B1: Tạo folder database và models (trong thư mục src)
+
+### Setup form
+- B1: Tạo folder utils (trong thư mục app)
+- B2: Tạo folder form-element (trong thư mục src)
+
+```jsx
+const CommonFormElement = ({ currentItem, value, onChange }) => {
+    let content = null;
+
+    switch (currentItem.componentType) {
+        case 'input':
+            content = (
+                <Input 
+                    name={currentItem.name} 
+                    id={currentItem.name} 
+                    placeholder={currentItem.placeholder} 
+                    value={value} 
+                    onChange={onChange}
+                />
+            );
+            break;
+
+        default:
+            content = (
+                <Input 
+                    name={currentItem.name} 
+                    id={currentItem.name} 
+                    placeholder={currentItem.placeholder} 
+                    value={value} 
+                    onChange={onChange}
+                />
+            );
+            break;
+    }
+
+    return content;
+}
+
+export default CommonFormElement;
+```
