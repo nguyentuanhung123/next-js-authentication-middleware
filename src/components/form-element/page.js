@@ -16,6 +16,7 @@ const CommonFormElement = ({ currentItem, value, onChange }) => {
                     placeholder={currentItem.placeholder} 
                     value={value} 
                     onChange={onChange}
+                    type={currentItem.type}
                 />
             );
             break;

@@ -96,7 +96,7 @@ export function middleware(request) {
 
 ### Setup form
 - B1: Tạo folder utils (trong thư mục app)
-- B2: Tạo folder form-element (trong thư mục src)
+- B2: Tạo folder form-element (trong thư mục components)
 
 ```jsx
 const CommonFormElement = ({ currentItem, value, onChange }) => {
@@ -133,3 +133,8 @@ const CommonFormElement = ({ currentItem, value, onChange }) => {
 
 export default CommonFormElement;
 ```
+
+### Thêm địa chỉ IP ở mongodb
+
+- B1: Ở Sidebar, chọn Network Access
+- B2: Bổ sung: 0.0.0.0/0
