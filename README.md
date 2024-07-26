@@ -362,6 +362,9 @@ const Logout = () => {
 export default Logout
 ```
 
+### Tính Năng Của Next.js
+- Next.js có thể có cơ chế server-side rendering (SSR) hoặc static site generation (SSG) mà bạn không nhận ra. Nếu trang Home được render lại trên server, khi bạn xóa cookie, server sẽ nhận thấy rằng không còn token hợp lệ và chuyển hướng người dùng đến trang đăng nhập trước khi trang được render trên client.
+
 
 
 
