@@ -138,3 +138,192 @@ export default CommonFormElement;
 
 - B1: Ở Sidebar, chọn Network Access
 - B2: Bổ sung: 0.0.0.0/0
+
+### Token
+- Khi một token hết hạn, nó không còn hợp lệ và các yêu cầu sử dụng token này sẽ bị từ chối. Điều này đảm bảo rằng các token chỉ có hiệu lực trong một khoảng thời gian nhất định, giúp tăng cường bảo mật.
+
+## Xử lý khi token hết hạn
+- Dưới đây là một ví dụ về cách xử lý token hết hạn:
+
+# Xác thực token:
+- Khi token hết hạn, jwt.verify sẽ trả về một lỗi. Bạn có thể kiểm tra lỗi này và thực hiện các biện pháp cần thiết, chẳng hạn như yêu cầu người dùng đăng nhập lại hoặc làm mới token.
+
+# Làm mới token (Token Refresh):
+- Một cách phổ biến để xử lý token hết hạn là sử dụng cơ chế làm mới token. Bạn có thể tạo một token làm mới (refresh token) có thời gian hết hạn dài hơn và sử dụng nó để cấp lại token truy cập (access token) mới.
+
+# Ví dụ mã nguồn
+- Dưới đây là một ví dụ về cách xử lý token hết hạn và làm mới token:
+
+# Tạo token truy cập và token làm mới
+
+```jsx
+const jwt = require('jsonwebtoken');
+
+// Dữ liệu người dùng
+const userData = {
+  userId: 123,
+  username: 'john_doe'
+};
+
+// Tạo token truy cập với thời gian hết hạn là 15 phút
+const accessToken = jwt.sign(userData, "ACCESS_TOKEN_SECRET", { expiresIn: '15m' });
+
+// Tạo token làm mới với thời gian hết hạn là 7 ngày
+const refreshToken = jwt.sign(userData, "REFRESH_TOKEN_SECRET", { expiresIn: '7d' });
+
+console.log('Access Token:', accessToken);
+console.log('Refresh Token:', refreshToken);
+```
+
+# Xác thực token và làm mới token
+
+```jsx
+const express = require('express');
+const app = express();
+
+app.use(express.json());
+
+// Giả sử bạn lưu trữ refresh token trong cơ sở dữ liệu
+let refreshTokens = [];
+
+app.post('/token', (req, res) => {
+  const { token } = req.body;
+  if (!token) return res.sendStatus(401);
+
+  jwt.verify(token, "REFRESH_TOKEN_SECRET", (err, user) => {
+    if (err) return res.sendStatus(403);
+
+    // Tạo token truy cập mới
+    const newAccessToken = jwt.sign({ userId: user.userId, username: user.username }, "ACCESS_TOKEN_SECRET", { expiresIn: '15m' });
+
+    res.json({
+      accessToken: newAccessToken
+    });
+  });
+});
+
+app.post('/login', (req, res) => {
+  // Giả sử bạn xác thực người dùng ở đây
+  const user = { userId: 123, username: 'john_doe' };
+
+  // Tạo token truy cập và token làm mới
+  const accessToken = jwt.sign(user, "ACCESS_TOKEN_SECRET", { expiresIn: '15m' });
+  const refreshToken = jwt.sign(user, "REFRESH_TOKEN_SECRET", { expiresIn: '7d' });
+
+  // Lưu refresh token
+  refreshTokens.push(refreshToken);
+
+  res.json({
+    accessToken,
+    refreshToken
+  });
+});
+
+app.listen(3000, () => {
+  console.log('Server running on port 3000');
+});
+```
+
+# Sử dụng middleware để bảo vệ các route
+
+```jsx
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  
+  if (token == null) return res.sendStatus(401);
+
+  jwt.verify(token, "ACCESS_TOKEN_SECRET", (err, user) => {
+    if (err) return res.sendStatus(403);
+
+    req.user = user;
+    next();
+  });
+};
+
+// Sử dụng middleware này cho các route cần bảo vệ
+app.get('/protected', authenticateToken, (req, res) => {
+  res.send('This is a protected route');
+});
+```
+
+### Tóm tắt
+- Token hết hạn: Khi token hết hạn, các yêu cầu sử dụng token này sẽ bị từ chối.
+- Làm mới token: Sử dụng token làm mới để cấp lại token truy cập mới mà không yêu cầu người dùng phải đăng nhập lại.
+- Middleware: Sử dụng middleware để bảo vệ các route và kiểm tra tính hợp lệ của token truy cập.
+
+### Lưu giữ token ở Cookie
+
+```jsx
+import { cookies } from "next/headers";
+
+// create token
+const createdTokenData = {
+    id: checkUser._id,
+    userName: checkUser.userName,
+    email: checkUser.email
+}
+
+const token = jwt.sign(createdTokenData, "DEFAULT_KEY", { expiresIn: '1d' })
+
+// store token using next/headers
+const getCookies = cookies();
+getCookies.set('token', token)
+```
+
+```jsx
+// get token on cookies
+const getCookies = cookies();
+const token = getCookies.get("token")?.value || ""
+if(token === "") {
+    return {
+        success: false,
+        message: 'Token is invalid.'
+    };
+}
+```
+
+### Middleware: https://nextjs.org/docs/app/building-your-application/routing/middleware
+- Middleware cho phép bạn chạy mã trước khi yêu cầu hoàn tất. Sau đó, dựa trên yêu cầu đến, bạn có thể sửa đổi phản hồi bằng cách viết lại, chuyển hướng, sửa đổi tiêu đề yêu cầu hoặc phản hồi hoặc phản hồi trực tiếp.
+
+- Middleware chạy trước khi nội dung được lưu trong bộ nhớ đệm và các route được khớp.
+
+### Fix bug: Sau khi người dùng đã đăng nhập thành công và tự động chuyển sang Homepage thì khi vào trang sign-in sẽ lại vào trang Homepage
+- B1: Tạo 1 file là middleware.js (bên trong folder src)
+
+```jsx
+import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
+
+export function middleware(request) {
+    // get path request
+    const path = request.nextUrl.pathname;
+    // Giả sử bạn có một path công khai
+    const checkPublicPath = path === '/sign-in' || path === '/sign-up';
+    // Lấy token từ cookies
+    const getCookies = cookies()
+    const token = getCookies.get("token")?.value || ""
+
+    // Kiểm tra nếu đường dẫn là public và token tồn tại
+    if(checkPublicPath && token !== "") {
+        return NextResponse.redirect(new URL('/', request.nextUrl))
+    }
+
+    if(!checkPublicPath && token === "") {
+        return NextResponse.redirect(new URL('/sign-in', request.nextUrl))
+    }
+}
+```
+
+- B2: Matcher
+- matcher cho phép bạn lọc Middleware để chạy trên các đường dẫn cụ thể.
+
+```jsx
+export const config = {
+  matcher: ['/sign-in', '/sign-up']
+}
+```
+
+
+
+
