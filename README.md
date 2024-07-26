@@ -324,6 +324,44 @@ export const config = {
 }
 ```
 
+### Đăng xuất
+- B1: Tạo 1 folder log-out bên trong components
+- B2: Xóa giá trị token trong cookies (trong thư mục actions)
+
+```jsx
+export async function logoutAction() {
+    const getCookies = cookies();
+    getCookies.set("token", "")
+}
+```
+
+- B3: Thêm logic ở Home.js
+
+```jsx
+if(!currentUser?.success) {
+  redirect('/sign-in')
+}
+```
+
+- B4: Tạo 1 file logout.js (bên trong folder components)
+
+```jsx
+const Logout = () => {
+
+    const router = useRouter();
+
+    const handleLogout = async() => {
+        await logoutAction();
+    }
+
+    return (
+        <Button onClick={handleLogout}>Logout</Button>
+    )
+}
+
+export default Logout
+```
+
 
 
 
