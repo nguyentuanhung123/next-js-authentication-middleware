@@ -364,6 +364,8 @@ export default Logout
 
 ### Tính Năng Của Next.js
 - Next.js có thể có cơ chế server-side rendering (SSR) hoặc static site generation (SSG) mà bạn không nhận ra. Nếu trang Home được render lại trên server, khi bạn xóa cookie, server sẽ nhận thấy rằng không còn token hợp lệ và chuyển hướng người dùng đến trang đăng nhập trước khi trang được render trên client.
+- Server-Side Rendering (SSR): Nếu bạn đang sử dụng Next.js với Server-Side Rendering (SSR), việc xóa token có thể dẫn đến việc trang được tải lại từ server. Điều này có thể xảy ra nếu trang sử dụng token để tải dữ liệu từ server và việc mất token yêu cầu phải tải lại dữ liệu.
+- Do trang Home là server component đang lấy dữ liệu user từ giá trị token được lưu trong cookies nên khi ta xóa giá trị token thì màn hình sẽ được refresh
 
 
 

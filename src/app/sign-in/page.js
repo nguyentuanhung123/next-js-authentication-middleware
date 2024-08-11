@@ -42,7 +42,7 @@ const SignIn = () => {
                         </div>
                     ))
                 }
-                <Button type="submit">Sign In</Button>
+                <Button type="submit" className="mt-4 ml-2">Sign In</Button>
             </form>
         </div>
     )
